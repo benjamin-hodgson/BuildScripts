@@ -30,11 +30,13 @@ jobs:
 
     - name: Get last tag
       id: last_tag
-      uses: WyriHaximus/github-action-get-previous-tag@v1
+      # v1.1.0
+      uses: WyriHaximus/github-action-get-previous-tag@8a0e045f02c0a3a04e1452df58b90fc7e555e950
 
     - name: Get next version
       id: next_version
-      uses: WyriHaximus/github-action-next-semvers@v1
+      # v1.1.0
+      uses: WyriHaximus/github-action-next-semvers@33d116a4c239252582a60a1ba8dbba63ad493ffd
       with:
         version: ${{ steps.last_tag.outputs.tag }}
   
@@ -63,12 +65,14 @@ jobs:
       run: dotnet pack --no-build --configuration Release -o nupkgs -p:Version=${{ steps.get_version.outputs.VERSION }}
         
     - name: Build docs
-      uses: nikeee/docfx-action@v1.0.0
+      # v1.0.0
+      uses: nikeee/docfx-action@b9c2cf92e3b4aa06878a1410833a8828b4bdcd26
       with:
         args: ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
         
     - name: Deploy docs
-      uses: JamesIves/github-pages-deploy-action@4.1.1
+      # v4.1.6
+      uses: JamesIves/github-pages-deploy-action@60b5e92fe9331f02fa1cdad4d19ddf875be0361c
       if: github.event_name != 'pull_request'
       with:
         branch: gh-pages
@@ -82,7 +86,8 @@ jobs:
         dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
     
     - name: Create Github Release
-      uses: softprops/action-gh-release@v1
+      # v0.1.14
+      uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: nupkgs/*
