@@ -54,6 +54,9 @@ jobs:
 
     - name: Restore nuget packages
       run: dotnet restore
+
+    - name: Check formatting
+      run: dotnet format --no-restore --verify-no-changes
       
     - name: Build
       run: dotnet build --no-restore --configuration Release -p:Version=${{ steps.get_version.outputs.VERSION }}
