@@ -28,6 +28,19 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
+    - name: Set up Mono
+      run: |
+        sudo apt install gnupg ca-certificates
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+        echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+        sudo apt update
+        sudo apt install mono-devel
+
+    - name: Get docfx
+      run: |
+        curl -LO https://github.com/dotnet/docfx/releases/download/v2.59.2/docfx.zip
+        unzip docfx.zip -d docfx
+
     - name: Get last tag
       id: last_tag
       # v1.1.0
@@ -68,11 +81,8 @@ jobs:
       run: dotnet pack --no-build --configuration Release -o nupkgs -p:Version=${{ steps.get_version.outputs.VERSION }}
         
     - name: Build docs
-      # v1.0.0
-      uses: nikeee/docfx-action@b9c2cf92e3b4aa06878a1410833a8828b4bdcd26
-      with:
-        args: ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
-        
+      run: mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
+
     - name: Deploy docs
       # v4.1.6
       uses: JamesIves/github-pages-deploy-action@60b5e92fe9331f02fa1cdad4d19ddf875be0361c
