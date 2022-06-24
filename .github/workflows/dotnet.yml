@@ -68,8 +68,7 @@ jobs:
       run: dotnet pack --no-build --configuration Release -o nupkgs -p:Version=${{ steps.get_version.outputs.VERSION }}
         
     - name: Build docs
-      # v1.0.0
-      uses: nikeee/docfx-action@b9c2cf92e3b4aa06878a1410833a8828b4bdcd26
+      uses: benjamin-hodgson/docfx-action@patch-1
       with:
         args: ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
         
