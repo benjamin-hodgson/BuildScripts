@@ -91,6 +91,9 @@ jobs:
       run: |
         dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
         dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
+        
+    - name: Get most recent changes from changelog
+      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | tee release-notes.md
     
     - name: Create Github Release
       # v0.1.14
@@ -98,7 +101,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: nupkgs/*
-        body_path: CHANGELOG.md
+        body_path: release-notes.md
       env:
         GITHUB_TOKEN: ${{ github.token }}
       
