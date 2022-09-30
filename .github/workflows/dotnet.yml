@@ -61,13 +61,15 @@ jobs:
       run: dotnet restore
 
     - name: Check formatting
+      id: format
       run: dotnet format --no-restore --verify-no-changes --report format-report.json
       
     - name: Build
       run: dotnet build --no-restore --configuration Release -p:Version=${{ steps.get_version.outputs.VERSION }}
       
     - name: Test
-      run: dotnet test *.Tests --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+      id: test
+      run: dotnet test *.Tests --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --logger trx
 
     - name: Pack
       run: dotnet pack --no-build --configuration Release -o nupkgs -p:Version=${{ steps.get_version.outputs.VERSION }}
@@ -116,7 +118,13 @@ jobs:
         path: ${{ inputs.DOCS_FOLDER }}/_site
 
     - uses: actions/upload-artifact@v2
-      if: always()
+      if: steps.test.conclusion != 'cancelled' && steps.test.conclusion != 'skipped'
+      with:
+        name: TestResults
+        path: "**/TestResults/*.trx"
+
+    - uses: actions/upload-artifact@v2
+      if: steps.format.conclusion != 'cancelled' && steps.format.conclusion != 'skipped'
       with:
         name: format-report.json
         path: format-report.json
