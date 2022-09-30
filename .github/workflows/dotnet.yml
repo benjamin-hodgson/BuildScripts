@@ -121,7 +121,9 @@ jobs:
       if: steps.test.conclusion != 'cancelled' && steps.test.conclusion != 'skipped'
       with:
         name: TestResults
-        path: "**/TestResults/*.trx"
+        path: |
+          **/TestResults/*.trx
+          **/TestResults/*/coverage.cobertura.xml
 
     - uses: actions/upload-artifact@v2
       if: steps.format.conclusion != 'cancelled' && steps.format.conclusion != 'skipped'
