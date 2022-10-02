@@ -4,8 +4,7 @@
             EchoOff="true"
             ConsoleToMsBuild="true"
             StandardErrorImportance="low"
-            StandardOutputImportance="low"
-            WorkingDirectory="$(MsBuildThisFileDirectory)">
+            StandardOutputImportance="low">
 			<Output TaskParameter="ConsoleOutput" PropertyName="_GitDescribe"/>
         </Exec>
 
