@@ -33,30 +33,6 @@ jobs:
         curl -LO https://github.com/dotnet/docfx/releases/download/v2.59.2/docfx.zip
         unzip docfx.zip -d docfx
 
-    - name: Get last tag
-      id: last_tag
-      # v1.1.0
-      uses: WyriHaximus/github-action-get-previous-tag@8a0e045f02c0a3a04e1452df58b90fc7e555e950
-
-    - name: Get next version
-      id: next_version
-      # v1.1.0
-      uses: WyriHaximus/github-action-next-semvers@33d116a4c239252582a60a1ba8dbba63ad493ffd
-      with:
-        version: ${{ steps.last_tag.outputs.tag }}
-  
-    - name: Compute version for this build
-      id: get_version
-      run: |
-        shopt -s extglob
-        echo ::set-output name=BRANCH::${GITHUB_REF#@(refs/tags/|refs/heads/)}
-        if [[ $GITHUB_REF == refs/tags/* ]] ;
-        then
-            echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
-        else
-            echo ::set-output name=VERSION::${{ steps.next_version.outputs.patch }}-build.${{ github.run_id }}
-        fi
-
     - name: Restore nuget packages
       run: dotnet restore
 
@@ -65,14 +41,14 @@ jobs:
       run: dotnet format --no-restore --verify-no-changes --report format-report.json
       
     - name: Build
-      run: dotnet build --no-restore --configuration Release -p:Version=${{ steps.get_version.outputs.VERSION }}
+      run: dotnet build --no-restore --configuration Release
       
     - name: Test
       id: test
       run: dotnet test *.Tests --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --logger trx
 
     - name: Pack
-      run: dotnet pack --no-build --configuration Release -o nupkgs -p:Version=${{ steps.get_version.outputs.VERSION }}
+      run: dotnet pack --no-build --configuration Release -o nupkgs
         
     - name: Build docs
       run: mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
@@ -84,7 +60,7 @@ jobs:
       with:
         branch: gh-pages
         folder: ${{ inputs.DOCS_FOLDER }}/_site
-        target-folder: ${{ steps.get_version.outputs.BRANCH }}
+        target-folder: ${{ github.ref_name }}
 
     - uses: codecov/codecov-action@v2
     
