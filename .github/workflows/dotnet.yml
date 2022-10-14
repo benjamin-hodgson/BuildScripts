@@ -66,7 +66,7 @@ jobs:
 
     - id: test
       name: Test
-      run: dotnet test *.Tests --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
 
     - id: pack
       name: Pack
