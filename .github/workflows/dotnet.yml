@@ -26,9 +26,7 @@ jobs:
 
     - name: Work around https://github.com/actions/checkout/issues/290
       if: github.ref_type == 'tag'
-      run: |  # https://github.com/actions/checkout/issues/290#issuecomment-660777444
-        git fetch origin refs/tags/$GITHUB_REF_NAME --force
-        git checkout -f refs/tags/$GITHUB_REF_NAME
+      run: |
 
     - uses: actions/setup-dotnet@v3
       with:
@@ -42,6 +40,7 @@ jobs:
     - name: Compute version and write rsp file
       run: |
         shopt -s extglob
+        git fetch --tags --force  # https://github.com/actions/checkout/issues/290#issuecomment-680260080
         desc=$(git describe)
         version=${desc#v}
         echo Computed version: $version
