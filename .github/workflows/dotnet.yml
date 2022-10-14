@@ -27,7 +27,7 @@ jobs:
     - name: Work around https://github.com/actions/checkout/issues/290
       if: github.ref_type == 'tag'
       run: |  # https://github.com/actions/checkout/issues/290#issuecomment-660777444
-        git fetch origin refs/tags/$GITHUB_REF_NAME
+        git fetch origin refs/tags/$GITHUB_REF_NAME --force
         git checkout -f refs/tags/$GITHUB_REF_NAME
 
     - uses: actions/setup-dotnet@v3
