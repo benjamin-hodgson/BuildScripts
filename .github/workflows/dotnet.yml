@@ -55,41 +55,29 @@ jobs:
     - name: Restore nuget packages
       run: dotnet restore
 
-    - name: Check formatting
-      id: format
-      run: dotnet format --no-restore --verify-no-changes --report format-report.json
+    - id: format
+      run: dotnet format --no-restore --verify-no-changes
 
-    - name: Build
+    - id: build
       run: dotnet build --no-restore
 
-    - name: Test
-      id: test
+    - id: test
       run: dotnet test *.Tests --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
 
-    - name: Pack
+    - id: pack
       run: dotnet pack --no-build -o nupkgs
 
-    - name: Build docs
+    - id: docs
       run: mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
-
-    - name: Deploy docs
-      uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6  # v4.4.1
-      if: github.event_name != 'pull_request'
-      with:
-        branch: gh-pages
-        folder: ${{ inputs.DOCS_FOLDER }}/_site
-        target-folder: ${{ github.ref_name }}
-
-    - uses: codecov/codecov-action@v2
-
-    - name: Get most recent section from changelog
-      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | tee release-notes.md
 
     - name: Push nuget packages
       if: github.ref_type == 'tag'
       run: |
         dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
         dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
+
+    - name: Get most recent section from changelog
+      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | tee release-notes.md
 
     - name: Create Github Release
       uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5  # v0.1.14
@@ -100,26 +88,31 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
-    - uses: actions/upload-artifact@v2
+    - uses: codecov/codecov-action@v3
+
+    - name: Deploy docs
+      uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6  # v4.4.1
+      if: github.event_name != 'pull_request'
       with:
-        name: nupkgs
+        branch: gh-pages
+        folder: ${{ inputs.DOCS_FOLDER }}/_site
+        target-folder: ${{ github.ref_name }}
+
+    - uses: actions/upload-artifact@v3
+      if: steps.pack.conclusion != 'cancelled' && steps.pack.conclusion != 'skipped'
+      with:
         path: nupkgs
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
+      if: steps.docs.conclusion != 'cancelled' && steps.docs.conclusion != 'skipped'
       with:
         name: ${{ inputs.DOCS_FOLDER }}
         path: ${{ inputs.DOCS_FOLDER }}/_site
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       if: steps.test.conclusion != 'cancelled' && steps.test.conclusion != 'skipped'
       with:
         name: TestResults
         path: |
           **/TestResults/*.trx
           **/TestResults/*/coverage.cobertura.xml
-
-    - uses: actions/upload-artifact@v2
-      if: steps.format.conclusion != 'cancelled' && steps.format.conclusion != 'skipped'
-      with:
-        name: format-report.json
-        path: format-report.json
