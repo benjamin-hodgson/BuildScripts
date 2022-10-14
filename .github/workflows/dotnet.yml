@@ -36,7 +36,8 @@ jobs:
     - name: Compute version
       run: |
         shopt -s extglob
-        version=${$(git describe)#v}
+        desc=$(git describe)
+        version=${desc#v}
         echo ::set-output name=BRANCH::${GITHUB_REF#@(refs/tags/|refs/heads/)}
         echo ::set-output name=VERSION::$version
         echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
