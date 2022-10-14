@@ -24,10 +24,6 @@ jobs:
         repository: benjamin-hodgson/DocFXTemplate
         path: DocFXTemplate
 
-    - name: Work around https://github.com/actions/checkout/issues/290
-      if: github.ref_type == 'tag'
-      run: |
-
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
