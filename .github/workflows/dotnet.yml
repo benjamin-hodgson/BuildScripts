@@ -33,29 +33,13 @@ jobs:
         curl -LO https://github.com/dotnet/docfx/releases/download/v2.59.2/docfx.zip
         unzip docfx.zip -d docfx
 
-    - name: Get last tag
-      id: last_tag
-      # v1.1.0
-      uses: WyriHaximus/github-action-get-previous-tag@8a0e045f02c0a3a04e1452df58b90fc7e555e950
-
-    - name: Get next version
-      id: next_version
-      # v1.1.0
-      uses: WyriHaximus/github-action-next-semvers@33d116a4c239252582a60a1ba8dbba63ad493ffd
-      with:
-        version: ${{ steps.last_tag.outputs.tag }}
-  
-    - name: Compute version for this build
-      id: get_version
+    - name: Compute version
       run: |
         shopt -s extglob
+        version=${$(git describe)#v}
         echo ::set-output name=BRANCH::${GITHUB_REF#@(refs/tags/|refs/heads/)}
-        if [[ $GITHUB_REF == refs/tags/* ]] ;
-        then
-            echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
-        else
-            echo ::set-output name=VERSION::${{ steps.next_version.outputs.patch }}-build.${{ github.run_id }}
-        fi
+        echo ::set-output name=VERSION::$version
+        echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
 
     - name: Restore nuget packages
       run: dotnet restore
@@ -63,17 +47,17 @@ jobs:
     - name: Check formatting
       id: format
       run: dotnet format --no-restore --verify-no-changes --report format-report.json
-      
+
     - name: Build
-      run: dotnet build --no-restore --configuration Release -p:Version=${{ steps.get_version.outputs.VERSION }}
-      
+      run: dotnet build --no-restore
+
     - name: Test
       id: test
-      run: dotnet test *.Tests --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --logger trx
+      run: dotnet test *.Tests --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
 
     - name: Pack
-      run: dotnet pack --no-build --configuration Release -o nupkgs -p:Version=${{ steps.get_version.outputs.VERSION }}
-        
+      run: dotnet pack --no-build -o nupkgs
+
     - name: Build docs
       run: mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
 
@@ -87,16 +71,16 @@ jobs:
         target-folder: ${{ steps.get_version.outputs.BRANCH }}
 
     - uses: codecov/codecov-action@v2
-    
+
     - name: Get most recent section from changelog
       run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | tee release-notes.md
-      
+
     - name: Push nuget packages
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
         dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
-    
+
     - name: Create Github Release
       # v0.1.14
       uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
@@ -106,7 +90,7 @@ jobs:
         body_path: release-notes.md
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      
+
     - uses: actions/upload-artifact@v2
       with:
         name: nupkgs
