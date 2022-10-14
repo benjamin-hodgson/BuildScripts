@@ -44,8 +44,6 @@ jobs:
         shopt -s extglob
         desc=$(git describe)
         version=${desc#v}
-        echo name=BRANCH::${GITHUB_REF#@(refs/tags/|refs/heads/)} >> $GITHUB_OUTPUT
-        echo "name=VERSION::$version" >> $GITHUB_OUTPUT
         echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
 
     - name: Restore nuget packages
@@ -74,7 +72,7 @@ jobs:
       with:
         branch: gh-pages
         folder: ${{ inputs.DOCS_FOLDER }}/_site
-        target-folder: ${{ steps.get_version.outputs.BRANCH }}
+        target-folder: ${{ github.ref_name }}
 
     - uses: codecov/codecov-action@v2
 
