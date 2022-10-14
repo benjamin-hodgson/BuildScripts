@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         repository: benjamin-hodgson/DocFXTemplate
         path: DocFXTemplate
@@ -31,7 +31,7 @@ jobs:
         [ `git rev-parse refs/tags/$GITHUB_REF_NAME` != $GITHUB_SHA ] || fail
         git checkout -f refs/tag/$GITHUB_REF_NAME
 
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
 
