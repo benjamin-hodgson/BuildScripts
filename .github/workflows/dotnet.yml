@@ -70,8 +70,7 @@ jobs:
       run: mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
 
     - name: Deploy docs
-      # v4.1.6
-      uses: JamesIves/github-pages-deploy-action@60b5e92fe9331f02fa1cdad4d19ddf875be0361c
+      uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6  # v4.4.1
       if: github.event_name != 'pull_request'
       with:
         branch: gh-pages
@@ -84,15 +83,14 @@ jobs:
       run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | tee release-notes.md
 
     - name: Push nuget packages
-      if: startsWith(github.ref, 'refs/tags/')
+      if: github.ref_type == 'tag'
       run: |
         dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
         dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
     - name: Create Github Release
-      # v0.1.14
-      uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
-      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5  # v0.1.14
+      if: github.ref_type == 'tag'
       with:
         files: nupkgs/*
         body_path: release-notes.md
