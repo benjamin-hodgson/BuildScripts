@@ -40,10 +40,14 @@ jobs:
     - name: Compute version and write rsp file
       run: |
         shopt -s extglob
+
         git fetch --tags --force  # https://github.com/actions/checkout/issues/290#issuecomment-680260080
-        desc=$(git describe)
-        version=${desc#v}
-        echo Computed version: $version
+
+        # 'git describe' outputs in a format like tagName-commitCount-shortHash,
+        # and I want to turn that into a legal nuget version. My tags start with
+        # 'v', so let's lop that off, and change the last '-' to '_'
+        version=$(git describe | sed -r 's/(.*)(-)/\1_/' | sed s/^v//)
+        echo Version $version
         echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
 
     - name: Restore nuget packages
