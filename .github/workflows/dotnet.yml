@@ -43,10 +43,16 @@ jobs:
 
         git fetch --tags --force  # https://github.com/actions/checkout/issues/290#issuecomment-680260080
 
-        # 'git describe' outputs in a format like tagName-commitCount-shortHash,
-        # and I want to turn that into a legal nuget version. My tags start with
-        # 'v', so let's lop that off, and change the last '-' to '_'
-        version=$(git describe | sed -r 's/(.*)(-)/\1_/' | sed s/^v//)
+        # 'git describe' outputs in a format like
+        # 'tagName-commitCount-shortHash', and I want to turn that
+        # into a legal nuget version. My tags start with 'v', so
+        # let's lop that off, and change the _last_ '-' to '.'
+        # (so that everything after tagName becomes part of the
+        # prerelease annotation). When we're on an actual tag,
+        # 'git describe' simply outputs the tag name, so the second
+        # regex will not match (and sed will echo the input unchanged)
+        version=$(git describe | sed s/^v// | sed -r 's/(.*)-/\1./')
+
         echo Version $version
         echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
 
