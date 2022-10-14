@@ -24,6 +24,13 @@ jobs:
         repository: benjamin-hodgson/DocFXTemplate
         path: DocFXTemplate
 
+    - name: https://github.com/actions/checkout/issues/290 workaround
+      if: github.ref_type == 'tag'
+      run: |  # https://github.com/actions/checkout/issues/290#issuecomment-660777444
+        git fetch origin refs/tags/$GITHUB_REF_NAME
+        [ `git rev-parse refs/tags/$GITHUB_REF_NAME` != $GITHUB_SHA ] || fail
+        git checkout -f refs/tag/$GITHUB_REF_NAME
+
     - uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
