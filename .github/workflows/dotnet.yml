@@ -38,8 +38,8 @@ jobs:
         shopt -s extglob
         desc=$(git describe)
         version=${desc#v}
-        echo ::set-output name=BRANCH::${GITHUB_REF#@(refs/tags/|refs/heads/)}
-        echo ::set-output name=VERSION::$version
+        echo name=BRANCH::${GITHUB_REF#@(refs/tags/|refs/heads/)} >> $GITHUB_OUTPUT
+        echo "name=VERSION::$version" >> $GITHUB_OUTPUT
         echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
 
     - name: Restore nuget packages
