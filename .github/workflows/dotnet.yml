@@ -52,25 +52,32 @@ jobs:
         echo Version $version
         echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
 
-    - name: Restore nuget packages
+    - id: restore
+      name: Restore
       run: dotnet restore
 
     - id: format
+      name: Check formatting
       run: dotnet format --no-restore --verify-no-changes
 
     - id: build
+      name: Build
       run: dotnet build --no-restore
 
     - id: test
+      name: Test
       run: dotnet test *.Tests --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
 
     - id: pack
+      name: Pack
       run: dotnet pack --no-build -o nupkgs
 
     - id: docs
+      name: Build docs
       run: mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
 
-    - name: Push nuget packages
+    - id: push
+      name: Push nuget packages
       if: github.ref_type == 'tag'
       run: |
         dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
