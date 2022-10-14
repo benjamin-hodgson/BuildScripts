@@ -24,7 +24,7 @@ jobs:
         repository: benjamin-hodgson/DocFXTemplate
         path: DocFXTemplate
 
-    - name: https://github.com/actions/checkout/issues/290 workaround
+    - name: Work around https://github.com/actions/checkout/issues/290
       if: github.ref_type == 'tag'
       run: |  # https://github.com/actions/checkout/issues/290#issuecomment-660777444
         git fetch origin refs/tags/$GITHUB_REF_NAME
@@ -39,7 +39,7 @@ jobs:
         curl -LO https://github.com/dotnet/docfx/releases/download/v2.59.2/docfx.zip
         unzip docfx.zip -d docfx
 
-    - name: Compute version
+    - name: Compute version and write rsp file
       run: |
         shopt -s extglob
         desc=$(git describe)
