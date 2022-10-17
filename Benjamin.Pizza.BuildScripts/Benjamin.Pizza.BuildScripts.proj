@@ -11,6 +11,7 @@
 
         <TargetFramework>netstandard1.0</TargetFramework>
         <NoBuild>true</NoBuild>
+        <IsPackable>true</IsPackable>
         <DevelopmentDependency>true</DevelopmentDependency>
         <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     </PropertyGroup>

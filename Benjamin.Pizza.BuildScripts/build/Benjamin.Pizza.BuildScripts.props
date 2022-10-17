@@ -1,3 +1,7 @@
 <Project>
 
+    <ItemGroup>
+        <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)Benjamin.Pizza.globalconfig" />
+    </ItemGroup>
+
 </Project>
