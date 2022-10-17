@@ -1,0 +1,74 @@
+name: Build and publish Benjamin.Pizza.BuildScripts package
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [ main ]
+    tags:
+      - v*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Compute version and write rsp file
+      run: |
+        shopt -s extglob
+
+        git fetch --tags --force  # https://github.com/actions/checkout/issues/290#issuecomment-680260080
+
+        # 'git describe' outputs in a format like
+        # 'tagName-commitCount-shortHash', and I want to turn that
+        # into a legal nuget version. My tags start with 'v', so
+        # let's lop that off, and change the _last_ '-' to '.'
+        # (so that everything after tagName becomes part of the
+        # prerelease annotation). When we're on an actual tag,
+        # 'git describe' simply outputs the tag name, so the second
+        # regex will not match (and sed will echo the input unchanged)
+        version=$(git describe | sed s/^v// | sed -r 's/(.*)-/\1./')
+
+        echo Version $version
+        echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
+
+    - id: restore
+      name: Restore
+      run: dotnet restore
+
+    - id: pack
+      name: Pack
+      run: dotnet pack -o nupkgs
+
+    - id: push
+      name: Push nuget packages
+      if: github.ref_type == 'tag'
+      run: |
+        dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.BUILD_SCRIPTS_NUGET_KEY }}
+        dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
+
+    - uses: actions/upload-artifact@v3
+      if: steps.pack.conclusion != 'cancelled' && steps.pack.conclusion != 'skipped'
+      with:
+        name: nupkgs
+        path: nupkgs
+
+    - name: Get most recent section from changelog
+      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | tee release-notes.md
+
+    - name: Create Github Release
+      uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5  # v0.1.14
+      if: github.ref_type == 'tag'
+      with:
+        files: nupkgs/*
+        body_path: release-notes.md
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
