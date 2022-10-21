@@ -84,14 +84,12 @@ jobs:
         dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
     - name: Get most recent section from changelog
-      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | tee release-notes.md
+      run: tee release-notes.md
 
     - name: Create Github Release
-      uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5  # v0.1.14
       if: github.ref_type == 'tag'
-      with:
-        files: nupkgs/*
-        body_path: release-notes.md
+      # get most recent section of changelog for release notes
+      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./nupkgs/* -F -
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
