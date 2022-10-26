@@ -83,9 +83,6 @@ jobs:
         dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
         dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
-    - name: Get most recent section from changelog
-      run: tee release-notes.md
-
     - name: Create Github Release
       if: github.ref_type == 'tag'
       # get most recent section of changelog for release notes
