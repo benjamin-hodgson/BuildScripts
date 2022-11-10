@@ -17,9 +17,9 @@ jobs:
       with:
         fetch-depth: 0
 
-    - uses: actions/setup-dotnet@v3
+    - uses: actions/setup-dotnet@v3.0.3
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 7.0
 
     - name: Compute version and write rsp file
       run: |
