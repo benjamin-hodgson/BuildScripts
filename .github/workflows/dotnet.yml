@@ -77,7 +77,7 @@ jobs:
       name: Build docs
       run: |
         mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
-        7z a ${{ inputs.DOCS_FOLDER }}.zip ${{ inputs.DOCS_FOLDER }}/_site/**/*
+        7z a ${{ inputs.DOCS_FOLDER }}.zip ${{ inputs.DOCS_FOLDER }}/_site
 
     - id: push
       name: Push nuget packages
