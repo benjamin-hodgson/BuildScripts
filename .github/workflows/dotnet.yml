@@ -77,9 +77,6 @@ jobs:
       name: Build docs
       run: |
         mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
-        pushd ${{ inputs.DOCS_FOLDER }}/_site
-        7z a -sfp ../../${{ inputs.DOCS_FOLDER }}.zip *
-        popd
 
     - id: push
       name: Push nuget packages
@@ -91,7 +88,7 @@ jobs:
     - name: Create Github Release
       if: github.ref_type == 'tag'
       # get most recent section of changelog for release notes
-      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./nupkgs/* ${{ inputs.DOCS_FOLDER }}.zip --verify-tag --notes-file -
+      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./nupkgs/* --verify-tag --notes-file -
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
@@ -115,7 +112,7 @@ jobs:
       if: steps.docs.conclusion != 'cancelled' && steps.docs.conclusion != 'skipped'
       with:
         name: ${{ inputs.DOCS_FOLDER }}
-        path: ${{ inputs.DOCS_FOLDER }}.zip
+        path: ${{ inputs.DOCS_FOLDER }}/_site
 
     - uses: actions/upload-artifact@v3
       if: steps.test.conclusion != 'cancelled' && steps.test.conclusion != 'skipped'
