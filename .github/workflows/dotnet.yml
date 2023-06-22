@@ -56,10 +56,9 @@ jobs:
       name: Restore
       run: dotnet restore
 
-#     disabling, temporarily, due to bug https://github.com/dotnet/format/issues/1800
-#     - id: format
-#       name: Check formatting
-#       run: dotnet format --no-restore --verify-no-changes
+    - id: format
+      name: Check formatting
+      run: dotnet format --no-restore --verify-no-changes
 
     - id: build
       name: Build
