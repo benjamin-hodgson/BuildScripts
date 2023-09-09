@@ -74,7 +74,7 @@ jobs:
     - id: docs
       name: Build docs
       run: |
-        docfx ${{ inputs.DOCS_FOLDER }}/docfx.json -t DocFXTemplate
+        docfx ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
 
     - id: push
       name: Push nuget packages
