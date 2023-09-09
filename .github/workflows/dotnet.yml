@@ -30,7 +30,7 @@ jobs:
 
     - name: Get docfx
       run: |
-        dotnet tool install -g docfx -v 2.70
+        dotnet tool install -g docfx --version 2.70
 
     - name: Compute version and write rsp file
       run: |
