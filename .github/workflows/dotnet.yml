@@ -24,7 +24,7 @@ jobs:
         repository: benjamin-hodgson/DocFXTemplate
         path: DocFXTemplate
 
-    - uses: actions/setup-dotnet@v3.0.3
+    - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0
 
