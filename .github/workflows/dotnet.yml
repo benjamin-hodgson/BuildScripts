@@ -29,9 +29,7 @@ jobs:
         dotnet-version: 7.0
 
     - name: Get docfx
-      run: |
-        curl -LO https://github.com/dotnet/docfx/releases/download/v2.59.2/docfx.zip
-        unzip docfx.zip -d docfx
+      run: dotnet tool install -g docfx
 
     - name: Compute version and write rsp file
       run: |
@@ -56,10 +54,9 @@ jobs:
       name: Restore
       run: dotnet restore
 
-#     disabling, temporarily, due to bug https://github.com/dotnet/format/issues/1800
-#     - id: format
-#       name: Check formatting
-#       run: dotnet format --no-restore --verify-no-changes
+     - id: format
+       name: Check formatting
+       run: dotnet format --no-restore --verify-no-changes
 
     - id: build
       name: Build
@@ -76,7 +73,7 @@ jobs:
     - id: docs
       name: Build docs
       run: |
-        mono docfx/docfx.exe ${{ inputs.DOCS_FOLDER }}/docfx.json -t ../DocFXTemplate
+        dotnet docfx ${{ inputs.DOCS_FOLDER }}/docfx.json -t DocFXTemplate
 
     - id: push
       name: Push nuget packages
