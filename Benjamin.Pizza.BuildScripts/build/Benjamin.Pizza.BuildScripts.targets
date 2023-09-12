@@ -9,6 +9,7 @@
         <WriteLinesToFile
             File="$(IntermediateOutputPath)/index.md"
             Lines="See the [api docs](xref:$(DocumentationSiteTitle))"
+            Overwrite="true"
             WriteOnlyWhenDifferent="true" />
 
     </Target>
