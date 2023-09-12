@@ -56,7 +56,7 @@ jobs:
 
     - id: restore
       name: Restore
-      run: dotnet restore
+      run: dotnet restore && dotnet tool restore
 
     - id: format
       name: Check formatting
