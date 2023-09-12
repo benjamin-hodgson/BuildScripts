@@ -109,7 +109,7 @@ jobs:
       if: ${{ inputs.USE_NEW_DOCS && github.event_name != 'pull_request' }}
       with:
         branch: gh-pages
-        folder: ${{ inputs.DOCS_FOLDER }}/bin/Release
+        folder: ${{ inputs.DOCS_FOLDER }}/bin/Release/_site
         target-folder: ${{ github.ref_name }}
 
     - uses: actions/upload-artifact@v3
@@ -125,16 +125,10 @@ jobs:
         path: ${{ inputs.DOCS_FOLDER }}/_site
 
     - uses: actions/upload-artifact@v3
-      if: steps.docs.conclusion != 'cancelled' && steps.docs.conclusion != 'skipped'
-      with:
-        name: ${{ inputs.DOCS_FOLDER }}
-        path: ${{ inputs.DOCS_FOLDER }}/_site
-
-    - uses: actions/upload-artifact@v3
       if: inputs.USE_NEW_DOCS
       with:
         name: ${{ inputs.DOCS_FOLDER }}
-        path: ${{ inputs.DOCS_FOLDER }}/bin/Release
+        path: ${{ inputs.DOCS_FOLDER }}/bin/Release/_site
 
     - uses: actions/upload-artifact@v3
       if: steps.test.conclusion != 'cancelled' && steps.test.conclusion != 'skipped'
