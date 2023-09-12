@@ -4,10 +4,19 @@
         <IsDocumentationProject Condition="'$(IsDocumentationProject)' == '' and '$(MSBuildProjectFile.EndsWith(Docs.proj))' == 'true'">true</IsDocumentationProject>
     </PropertyGroup>
 
+    <Target Name="WriteIndexMd">
+
+        <WriteLinesToFile
+            File="$(IntermediateOutputPath)/index.md"
+            Lines="See the [api docs](xref:$(DocumentationSiteTitle))"
+            WriteOnlyWhenDifferent="true" />
+
+    </Target>
+
     <UsingTask
         TaskName="GenerateDocfxJson"
         TaskFactory="RoslynCodeTaskFactory"
-        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
 
         <ParameterGroup>
             <InputFile Required="true" />
@@ -102,8 +111,9 @@
 
     <Target
         Name="GenerateDocfxJson"
-        DependsOnTargets="ResolveProjectReferences">
-        <Message Text="@(DocumentationAssembly)" Importance="high" />
+        DependsOnTargets="ResolveProjectReferences"
+        Inputs="@(DocumentationAssembly)"
+        Outputs="$(IntermediateOutputPath)/docfx.json">
 
         <GenerateDocfxJson
             InputFile="$(MSBuildThisFileDirectory)/docfx.template.json"
@@ -115,9 +125,11 @@
 
     <Target
         Name="BuildDocs"
-        DependsOnTargets="GenerateDocfxJson"
+        DependsOnTargets="WriteIndexMd;GenerateDocfxJson"
         AfterTargets="CoreCompile"
-        Condition="'$(IsDocumentationProject)' == 'true'">
+        Condition="'$(IsDocumentationProject)' == 'true'"
+        Inputs="@(DocumentationAssembly);$(IntermediateOutputPath)/docfx.json"
+        Outputs="$(IntermediateOutputPath)/_site/manifest.json">
 
         <Exec Command="dotnet tool run docfx $(IntermediateOutputPath)/docfx.json -t $(MSBuildThisFileDirectory)/DocFXTemplate" />
 
