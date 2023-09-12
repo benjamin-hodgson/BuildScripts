@@ -1,0 +1,140 @@
+<Project>
+
+    <PropertyGroup>
+        <IsDocumentationProject Condition="'$(IsDocumentationProject)' == '' and '$(MSBuildProjectFile.EndsWith(Docs.proj))' == 'true'">true</IsDocumentationProject>
+    </PropertyGroup>
+
+    <UsingTask
+        TaskName="GenerateDocfxJson"
+        TaskFactory="RoslynCodeTaskFactory"
+        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+
+        <ParameterGroup>
+            <InputFile Required="true" />
+            <OutputFile Required="true" />
+            <Title Required="true" />
+            <AssemblyFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+        </ParameterGroup>
+
+        <Task>
+            <Using Namespace="System.Text.RegularExpressions" />
+            <Code Type="Fragment" Language="cs"><![CDATA[
+                // pasted and tweaked from
+                // https://github.com/dotnet/msbuild/blob/3c910ba83fc9dbd8e12f50dddc8c381404f928c4/src/Shared/FileUtilities.cs#L1126
+                Func<string, string, string> MakeRelative = (basePath, path) =>
+                {
+                    string fullBase = Path.GetFullPath(basePath);
+                    string fullPath = Path.GetFullPath(path);
+
+                    string[] splitBase = fullBase.Split(new[] { Path.DirectorySeparatorChar }, options: StringSplitOptions.RemoveEmptyEntries);
+                    string[] splitPath = fullPath.Split(new[] { Path.DirectorySeparatorChar }, options: StringSplitOptions.RemoveEmptyEntries);
+
+                    // On a mac, the path could start with any number of slashes and still be valid. We have to check them all.
+                    int indexOfFirstNonSlashChar = 0;
+                    while (path[indexOfFirstNonSlashChar] == Path.DirectorySeparatorChar)
+                    {
+                        indexOfFirstNonSlashChar++;
+                    }
+                    if (path.IndexOf(splitPath[0]) != indexOfFirstNonSlashChar)
+                    {
+                        // path was already relative so just return it
+                        return path;
+                    }
+
+                    int index = 0;
+                    while (index < splitBase.Length && index < splitPath.Length && splitBase[index].Equals(splitPath[index], StringComparison.Ordinal))
+                    {
+                        index++;
+                    }
+
+                    if (index == splitBase.Length && index == splitPath.Length)
+                    {
+                        return ".";
+                    }
+
+                    // If the paths have no component in common, the only valid relative path is the full path.
+                    if (index == 0)
+                    {
+                        return fullPath;
+                    }
+
+                    var sb = new StringBuilder();
+
+                    for (int i = index; i < splitBase.Length; i++)
+                    {
+                        sb.Append("..").Append(Path.DirectorySeparatorChar);
+                    }
+                    for (int i = index; i < splitPath.Length; i++)
+                    {
+                        sb.Append(splitPath[i]).Append(Path.DirectorySeparatorChar);
+                    }
+
+                    if (fullPath[fullPath.Length - 1] != Path.DirectorySeparatorChar)
+                    {
+                        sb.Length--;
+                    }
+
+                    return sb.ToString();
+                };
+
+                var outputDirectory = Path.GetFullPath(Path.GetDirectoryName(OutputFile));
+                var relativePrefixRegex = new Regex(@"^(\.\.[\\/])*");
+
+                var longestDistanceAssemblyFile = AssemblyFiles
+                    .Select(i => MakeRelative(outputDirectory, i.ToString()))
+                    .OrderByDescending(p => relativePrefixRegex.Match(p).Length)
+                    .First();
+                var nearestWorkingDir = relativePrefixRegex.Match(longestDistanceAssemblyFile).ToString();
+
+                var nearestWorkingDirAbsolute = Path.GetFullPath(Path.Combine(outputDirectory, nearestWorkingDir));
+                var relativeAssemblyFiles = AssemblyFiles.Select(i => '"' + MakeRelative(nearestWorkingDirAbsolute, i.ToString()) + '"');
+
+                var result = File.ReadAllText(InputFile)
+                    .Replace("$Title", Title)
+                    .Replace("\"@AssemblyFiles\"", '[' + string.Join(", ", relativeAssemblyFiles) + ']')
+                    .Replace("$AssemblyFilesRelativeDir", nearestWorkingDir.TrimEnd(new[] { '\\', '/' }));
+
+                File.WriteAllText(OutputFile, result);
+            ]]></Code>
+        </Task>
+
+    </UsingTask>
+
+    <Target
+        Name="GenerateDocfxJson"
+        DependsOnTargets="ResolveProjectReferences">
+        <Message Text="@(DocumentationAssembly)" Importance="high" />
+
+        <GenerateDocfxJson
+            InputFile="$(MSBuildThisFileDirectory)/docfx.template.json"
+            OutputFile="$(IntermediateOutputPath)/docfx.json"
+            Title="$(DocumentationSiteTitle)"
+            AssemblyFiles="@(DocumentationAssembly)" />
+
+    </Target>
+
+    <Target
+        Name="BuildDocs"
+        DependsOnTargets="GenerateDocfxJson"
+        AfterTargets="CoreCompile"
+        Condition="'$(IsDocumentationProject)' == 'true'">
+
+        <Exec Command="dotnet tool run docfx $(IntermediateOutputPath)/docfx.json -t $(MSBuildThisFileDirectory)/DocFXTemplate" />
+
+        <ItemGroup>
+            <!--
+                Need to go via an intermediate item because
+                it seems we can't access the path metadata
+                when creating the item
+            -->
+            <_BuiltDocfxOutput Include="$(IntermediateOutputPath)/_site/**/*" />
+
+            <Content Include="@(_BuiltDocfxOutput)">
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                <Link>_site/%(RecursiveDir)%(Filename)%(Extension)</Link>
+            </Content>
+        </ItemGroup>
+
+    </Target>
+
+</Project>
