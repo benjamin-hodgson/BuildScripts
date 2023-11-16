@@ -121,7 +121,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       if: steps.pack_net8.conclusion != 'cancelled' && steps.pack_net8.conclusion != 'skipped'
       with:
-        name: artifacts/package
+        name: packages
         path: artifacts/package
 
     - uses: actions/upload-artifact@v3
