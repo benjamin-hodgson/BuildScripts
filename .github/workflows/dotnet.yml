@@ -88,9 +88,16 @@ jobs:
         dotnet nuget push 'artifacts/package/release/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
     - name: Create Github Release
-      if: github.ref_type == 'tag'
+      if: ${{ github.ref_type == 'tag' && !inputs.NET8 }}
       # get most recent section of changelog for release notes
       run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./nupkgs/* --verify-tag --notes-file -
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        
+    - name: Create Github Release
+      if: ${{ github.ref_type == 'tag' && inputs.NET8 }}
+      # get most recent section of changelog for release notes
+      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./artifacts/package/release/* --verify-tag --notes-file -
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
