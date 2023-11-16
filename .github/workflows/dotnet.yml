@@ -109,7 +109,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request' && inputs.NET8 }}
       with:
         branch: gh-pages
-        folder: artifacts/bin/${{ inputs.DOCS_FOLDER }}/Release/_site
+        folder: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
         target-folder: ${{ github.ref_name }}
 
     - uses: actions/upload-artifact@v3
@@ -134,7 +134,7 @@ jobs:
       if: ${{ inputs.NET8 }}
       with:
         name: ${{ inputs.DOCS_FOLDER }}
-        path: artifacts/bin/${{ inputs.DOCS_FOLDER }}/Release/_site
+        path: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
 
     - uses: actions/upload-artifact@v3
       if: steps.test.conclusion != 'cancelled' && steps.test.conclusion != 'skipped'
