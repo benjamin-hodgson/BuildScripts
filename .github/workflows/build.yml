@@ -64,6 +64,6 @@ jobs:
     - name: Create Github Release
       if: github.ref_type == 'tag'
       # get most recent section of changelog for release notes
-      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./nupkgs/* -F -
+      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./artifacts/package/release/* -F -
       env:
         GITHUB_TOKEN: ${{ github.token }}
