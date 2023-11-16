@@ -84,8 +84,8 @@ jobs:
       name: Push nuget packages
       if: ${{ github.ref_type == 'tag' && inputs.NET8 }}
       run: |
-        dotnet nuget push 'artifacts/package/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
-        dotnet nuget push 'artifacts/package/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
+        dotnet nuget push 'artifacts/package/release/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
+        dotnet nuget push 'artifacts/package/release/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
     - name: Create Github Release
       if: github.ref_type == 'tag'
@@ -122,7 +122,7 @@ jobs:
       if: steps.pack_net8.conclusion != 'cancelled' && steps.pack_net8.conclusion != 'skipped'
       with:
         name: packages
-        path: artifacts/package
+        path: artifacts/package/release
 
     - uses: actions/upload-artifact@v3
       if: ${{ !inputs.NET8 }}
