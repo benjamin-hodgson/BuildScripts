@@ -142,6 +142,10 @@ dotnet_diagnostic.SA1101.severity = none
 #   Justification: I don't like this rule
 dotnet_diagnostic.SA1111.severity = none
 
+# SA1118: Parameter spans multiple lines
+#   Justification: I don't like this rule
+dotnet_diagnostic.SA1111.severity = none
+
 # SA1122: Use string.Empty for empty strings
 #   Justification: I don't like this rule
 dotnet_diagnostic.SA1122.severity = none
