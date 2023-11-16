@@ -6,6 +6,9 @@ on:
       DOCS_FOLDER:
         required: true
         type: string
+      NET8:
+        required: false
+        type: boolean
     secrets:
       NUGET_KEY:
         required: true
@@ -21,7 +24,9 @@ jobs:
 
     - uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 7.0
+        dotnet-version: |
+          7.0
+          8.0
 
     - name: Compute version and write rsp file
       run: |
@@ -60,14 +65,27 @@ jobs:
 
     - id: pack
       name: Pack
+      if: ${{ !inputs.NET8 }}
       run: dotnet pack --no-build -o nupkgs
+
+    - id: pack_net8
+      name: Pack
+      if: ${{ inputs.NET8 }}
+      run: dotnet pack --no-build
 
     - id: push
       name: Push nuget packages
-      if: github.ref_type == 'tag'
+      if: ${{ github.ref_type == 'tag' && !inputs.NET8 }}
       run: |
         dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
         dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
+
+    - id: push_net8
+      name: Push nuget packages
+      if: ${{ github.ref_type == 'tag' && inputs.NET8 }}
+      run: |
+        dotnet nuget push 'artifacts/package/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
+        dotnet nuget push 'artifacts/package/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
     - name: Create Github Release
       if: github.ref_type == 'tag'
@@ -80,10 +98,18 @@ jobs:
 
     - name: Deploy docs
       uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6  # v4.4.1
-      if: ${{ github.event_name != 'pull_request' }}
+      if: ${{ github.event_name != 'pull_request' && !inputs.NET8 }}
       with:
         branch: gh-pages
         folder: ${{ inputs.DOCS_FOLDER }}/bin/Release/_site
+        target-folder: ${{ github.ref_name }}
+
+    - name: Deploy docs
+      uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6  # v4.4.1
+      if: ${{ github.event_name != 'pull_request' && inputs.NET8 }}
+      with:
+        branch: gh-pages
+        folder: artifacts/bin/${{ inputs.DOCS_FOLDER }}/Release/_site
         target-folder: ${{ github.ref_name }}
 
     - uses: actions/upload-artifact@v3
@@ -93,9 +119,22 @@ jobs:
         path: nupkgs
 
     - uses: actions/upload-artifact@v3
+      if: steps.pack_net8.conclusion != 'cancelled' && steps.pack_net8.conclusion != 'skipped'
+      with:
+        name: artifacts/package
+        path: artifacts/package
+
+    - uses: actions/upload-artifact@v3
+      if: ${{ !inputs.NET8 }}
       with:
         name: ${{ inputs.DOCS_FOLDER }}
         path: ${{ inputs.DOCS_FOLDER }}/bin/Release/_site
+
+    - uses: actions/upload-artifact@v3
+      if: ${{ inputs.NET8 }}
+      with:
+        name: ${{ inputs.DOCS_FOLDER }}
+        path: artifacts/bin/${{ inputs.DOCS_FOLDER }}/Release/_site
 
     - uses: actions/upload-artifact@v3
       if: steps.test.conclusion != 'cancelled' && steps.test.conclusion != 'skipped'
