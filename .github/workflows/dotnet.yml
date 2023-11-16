@@ -9,6 +9,10 @@ on:
       NET8:
         required: false
         type: boolean
+      CHECK_FORMATTING:
+        required: false
+        type: boolean
+        default: true
     secrets:
       NUGET_KEY:
         required: true
@@ -53,6 +57,7 @@ jobs:
 
     - id: format
       name: Check formatting
+      if: ${{ inputs.CHECK_FORMATTING }}
       run: dotnet format --no-restore --verify-no-changes
 
     - id: build
@@ -93,7 +98,7 @@ jobs:
       run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./nupkgs/* --verify-tag --notes-file -
       env:
         GITHUB_TOKEN: ${{ github.token }}
-        
+
     - name: Create Github Release
       if: ${{ github.ref_type == 'tag' && inputs.NET8 }}
       # get most recent section of changelog for release notes
