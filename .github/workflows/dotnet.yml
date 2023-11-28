@@ -49,7 +49,7 @@ jobs:
         version=$(git describe | sed s/^v// | sed -r 's/(.*)-/\1./')
 
         echo Version $version
-        echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true > Directory.Build.rsp
+        echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true | tee Directory.Build.rsp
 
     - id: restore
       name: Restore
