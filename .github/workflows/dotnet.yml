@@ -6,9 +6,6 @@ on:
       DOCS_FOLDER:
         required: true
         type: string
-      NET8:
-        required: false
-        type: boolean
       CHECK_FORMATTING:
         required: false
         type: boolean
@@ -70,37 +67,17 @@ jobs:
 
     - id: pack
       name: Pack
-      if: ${{ !inputs.NET8 }}
-      run: dotnet pack --no-build -o nupkgs
-
-    - id: pack_net8
-      name: Pack
-      if: ${{ inputs.NET8 }}
       run: dotnet pack --no-build
 
     - id: push
       name: Push nuget packages
-      if: ${{ github.ref_type == 'tag' && !inputs.NET8 }}
-      run: |
-        dotnet nuget push 'nupkgs/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
-        dotnet nuget push 'nupkgs/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
-
-    - id: push_net8
-      name: Push nuget packages
-      if: ${{ github.ref_type == 'tag' && inputs.NET8 }}
+      if: ${{ github.ref_type == 'tag' }}
       run: |
         dotnet nuget push 'artifacts/package/release/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
         dotnet nuget push 'artifacts/package/release/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
     - name: Create Github Release
-      if: ${{ github.ref_type == 'tag' && !inputs.NET8 }}
-      # get most recent section of changelog for release notes
-      run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./nupkgs/* --verify-tag --notes-file -
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-
-    - name: Create Github Release
-      if: ${{ github.ref_type == 'tag' && inputs.NET8 }}
+      if: ${{ github.ref_type == 'tag' }}
       # get most recent section of changelog for release notes
       run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./artifacts/package/release/* --verify-tag --notes-file -
       env:
@@ -110,15 +87,7 @@ jobs:
 
     - name: Deploy docs
       uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6  # v4.4.1
-      if: ${{ github.event_name != 'pull_request' && !inputs.NET8 }}
-      with:
-        branch: gh-pages
-        folder: ${{ inputs.DOCS_FOLDER }}/bin/Release/_site
-        target-folder: ${{ github.ref_name }}
-
-    - name: Deploy docs
-      uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6  # v4.4.1
-      if: ${{ github.event_name != 'pull_request' && inputs.NET8 }}
+      if: ${{ github.event_name != 'pull_request' }}
       with:
         branch: gh-pages
         folder: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
@@ -131,19 +100,12 @@ jobs:
         path: nupkgs
 
     - uses: actions/upload-artifact@v3
-      if: steps.pack_net8.conclusion != 'cancelled' && steps.pack_net8.conclusion != 'skipped'
+      if: steps.pack.conclusion != 'cancelled' && steps.pack.conclusion != 'skipped'
       with:
         name: packages
         path: artifacts/package/release
 
     - uses: actions/upload-artifact@v3
-      if: ${{ !inputs.NET8 }}
-      with:
-        name: ${{ inputs.DOCS_FOLDER }}
-        path: ${{ inputs.DOCS_FOLDER }}/bin/Release/_site
-
-    - uses: actions/upload-artifact@v3
-      if: ${{ inputs.NET8 }}
       with:
         name: ${{ inputs.DOCS_FOLDER }}
         path: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
