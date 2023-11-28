@@ -99,12 +99,6 @@ jobs:
     - uses: actions/upload-artifact@v3
       if: steps.pack.conclusion != 'cancelled' && steps.pack.conclusion != 'skipped'
       with:
-        name: nupkgs
-        path: nupkgs
-
-    - uses: actions/upload-artifact@v3
-      if: steps.pack.conclusion != 'cancelled' && steps.pack.conclusion != 'skipped'
-      with:
         name: packages
         path: artifacts/package/release
 
