@@ -10,6 +10,9 @@ on:
         required: false
         type: boolean
         default: true
+      NET8:  # ignored
+        required: false
+        type: boolean
     secrets:
       NUGET_KEY:
         required: true
