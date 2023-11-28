@@ -21,6 +21,10 @@
             <Pack>true</Pack>
             <PackagePath>build</PackagePath>
         </None>
+        <None Include="buildMultitargeting/**/*">
+            <Pack>true</Pack>
+            <PackagePath>buildMultitargeting</PackagePath>
+        </None>
     </ItemGroup>
 
 </Project>
