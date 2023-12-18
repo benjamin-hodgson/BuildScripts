@@ -55,7 +55,7 @@ jobs:
         dotnet nuget push 'artifacts/package/release/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.BUILD_SCRIPTS_NUGET_KEY }}
         dotnet nuget push 'artifacts/package/release/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: steps.pack.conclusion != 'cancelled' && steps.pack.conclusion != 'skipped'
       with:
         name: packages

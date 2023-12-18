@@ -96,18 +96,18 @@ jobs:
         folder: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
         target-folder: ${{ github.ref_name }}
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: steps.pack.conclusion != 'cancelled' && steps.pack.conclusion != 'skipped'
       with:
         name: packages
         path: artifacts/package/release
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.DOCS_FOLDER }}
         path: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: steps.test.conclusion != 'cancelled' && steps.test.conclusion != 'skipped'
       with:
         name: TestResults
