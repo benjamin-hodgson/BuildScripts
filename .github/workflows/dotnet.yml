@@ -81,10 +81,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
-    - uses: codecov/codecov-action@v3
+    - uses: codecov/codecov-action@v4
 
     - name: Deploy docs
-      uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6  # v4.4.1
+      uses: JamesIves/github-pages-deploy-action@65b5dfd4f5bcd3a7403bbc2959c144256167464e  # v4.5.0
       if: ${{ github.event_name != 'pull_request' }}
       with:
         branch: gh-pages
