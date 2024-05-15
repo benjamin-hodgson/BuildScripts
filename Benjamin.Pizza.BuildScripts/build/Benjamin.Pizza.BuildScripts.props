@@ -6,7 +6,7 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-        <SignAssembly>true</SignAssembly>
+        <SignAssembly Condition="'$(SignAssembly)' == ''">true</SignAssembly>
 
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AnalysisMode>all</AnalysisMode>
