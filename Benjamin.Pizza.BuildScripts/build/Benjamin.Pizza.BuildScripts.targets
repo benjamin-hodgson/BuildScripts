@@ -101,8 +101,8 @@
 
                 var result = File.ReadAllText(InputFile)
                     .Replace("$Title", Title)
-                    .Replace("\"@AssemblyFiles\"", '[' + string.Join(", ", relativeAssemblyFiles) + ']')
-                    .Replace("$AssemblyFilesRelativeDir", nearestWorkingDir.TrimEnd(new[] { '\\', '/' }));
+                    .Replace("\"@AssemblyFiles\"", '[' + string.Join(", ", relativeAssemblyFiles).Replace('\\', '/') + ']')
+                    .Replace("$AssemblyFilesRelativeDir", nearestWorkingDir.TrimEnd(new[] { '\\', '/' }).Replace('\\', '/'));
 
                 File.WriteAllText(OutputFile, result);
             ]]></Code>
