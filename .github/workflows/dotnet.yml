@@ -63,9 +63,17 @@ jobs:
       name: Test
       run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
 
+    - uses: codecov/codecov-action@v4
+
     - id: pack
       name: Pack
       run: dotnet pack --no-build
+
+    - name: Attest
+      if: github.ref_type == 'tag'
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: 'artifacts/package/release/*'
 
     - name: Compute checksums
       run: |
@@ -88,8 +96,6 @@ jobs:
       run: cat CHANGELOG.md | sed -r '1,/^-+$/d' | sed -r '/^-+$/q' | head -n -2 | gh release create $GITHUB_REF_NAME ./artifacts/package/release/* --verify-tag --notes-file -
       env:
         GITHUB_TOKEN: ${{ github.token }}
-
-    - uses: codecov/codecov-action@v4
 
     - name: Deploy docs
       uses: JamesIves/github-pages-deploy-action@65b5dfd4f5bcd3a7403bbc2959c144256167464e  # v4.5.0

@@ -53,7 +53,7 @@ jobs:
       run: dotnet pack
 
     - name: Attest
-      # if: github.ref_type == 'tag'
+      if: github.ref_type == 'tag'
       uses: actions/attest-build-provenance@v1
       with:
         subject-path: 'artifacts/package/release/*'
