@@ -1,5 +1,9 @@
 name: Build and publish Benjamin.Pizza.BuildScripts package
 
+permissions:
+  id-token: write
+  attestations: write
+
 on:
   workflow_dispatch:
 
@@ -47,6 +51,12 @@ jobs:
     - id: pack
       name: Pack
       run: dotnet pack
+
+    - name: Attest
+      # if: github.ref_type == 'tag'
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: 'artifacts/package/release/*'
 
     - name: Compute checksums
       run: |
