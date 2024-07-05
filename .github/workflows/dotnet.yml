@@ -67,6 +67,14 @@ jobs:
       name: Pack
       run: dotnet pack --no-build
 
+    - name: Compute checksums
+      run: |
+        pushd artifacts/package/release
+        for file in *;
+          do sha256sum -b $file > $file.sha256;
+        done
+        popd
+
     - id: push
       name: Push nuget packages
       if: ${{ github.ref_type == 'tag' }}

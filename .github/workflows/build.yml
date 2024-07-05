@@ -48,12 +48,20 @@ jobs:
       name: Pack
       run: dotnet pack
 
+    - name: Compute checksums
+      run: |
+        pushd artifacts/package/release
+        for file in *;
+          do sha256sum -b $file > $file.sha256;
+        done
+        popd
+
     - id: push
       name: Push nuget packages
       if: github.ref_type == 'tag'
       run: |
-        dotnet nuget push 'artifacts/package/release/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.BUILD_SCRIPTS_NUGET_KEY }}
-        dotnet nuget push 'artifacts/package/release/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
+        dotnet nuget push 'artifacts/package/release/*.nupkg' --source https://api.nuget.org/v3/index.json -k ${{ secrets.BUILD_SCRIPTS_NUGET_KEY }}
+        dotnet nuget push 'artifacts/package/release/*.nupkg' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
     - uses: actions/upload-artifact@v4
       if: steps.pack.conclusion != 'cancelled' && steps.pack.conclusion != 'skipped'
