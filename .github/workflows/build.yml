@@ -1,8 +1,12 @@
 name: Build and publish Benjamin.Pizza.BuildScripts package
 
+
 permissions:
-  id-token: write
   attestations: write
+  contents: write
+  id-token: write
+  packages: write
+
 
 on:
   workflow_dispatch:
