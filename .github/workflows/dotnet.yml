@@ -13,6 +13,8 @@ on:
     secrets:
       NUGET_KEY:
         required: true
+      CODECOV_TOKEN:
+        required: true
 
 jobs:
   build:
