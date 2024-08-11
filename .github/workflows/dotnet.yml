@@ -64,6 +64,8 @@ jobs:
       run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
 
     - uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
     - id: pack
       name: Pack
