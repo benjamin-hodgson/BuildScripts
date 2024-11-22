@@ -45,7 +45,7 @@ jobs:
         # regex will not match (and sed will echo the input unchanged)
         version=$(git describe | sed s/^v// | sed -r 's/(.*)-/\1./')
 
-        echo Version $version
+        echo Version $version >> $GITHUB_STEP_SUMMARY
         echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true | tee Directory.Build.rsp
 
     - id: restore
