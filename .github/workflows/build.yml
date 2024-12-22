@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    uses: ./dotnet.yml
+    uses: ./.github/actions/dotnet.yml
       with:
         DOCS_FOLDER: ''
       secrets:
