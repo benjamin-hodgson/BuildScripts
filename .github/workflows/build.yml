@@ -20,8 +20,8 @@ on:
 
 jobs:
   build:
-    uses: ./.github/actions/dotnet.yml
-      with:
-        DOCS_FOLDER: ''
-      secrets:
-        NUGET_KEY: ${{ secrets.NUGET_KEY }}
+    uses: ./.github/actions/dotnet
+    with:
+      DOCS_FOLDER: ''
+    secrets:
+      NUGET_KEY: ${{ secrets.NUGET_KEY }}
