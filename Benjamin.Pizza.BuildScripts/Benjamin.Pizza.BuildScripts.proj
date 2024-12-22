@@ -10,7 +10,6 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
         <TargetFramework>netstandard2.0</TargetFramework>
-        <NoBuild>true</NoBuild>
         <IsPackable>true</IsPackable>
         <DevelopmentDependency>true</DevelopmentDependency>
         <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>

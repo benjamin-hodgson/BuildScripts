@@ -4,8 +4,9 @@ on:
   workflow_call:
     inputs:
       DOCS_FOLDER:
-        required: true
+        required: false
         type: string
+        default: ''
       CHECK_FORMATTING:
         required: false
         type: boolean
@@ -104,7 +105,7 @@ jobs:
 
     - name: Deploy docs
       uses: JamesIves/github-pages-deploy-action@15de0f09300eea763baee31dff6c6184995c5f6a  # v4.7.2
-      if: ${{ github.event_name != 'pull_request' }}
+      if: ${{ github.event_name != 'pull_request' && inputs.DOCS_FOLDER != '' }}
       with:
         branch: gh-pages
         folder: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
