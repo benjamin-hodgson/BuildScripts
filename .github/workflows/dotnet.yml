@@ -32,8 +32,6 @@ jobs:
 
     - name: Compute version and write rsp file
       run: |
-        shopt -s extglob
-
         git fetch --tags --force  # https://github.com/actions/checkout/issues/290#issuecomment-680260080
 
         # 'git describe' outputs in a format like
@@ -64,11 +62,21 @@ jobs:
 
     - id: test
       name: Test
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx
+      run: |
+        dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+        dotnet tool install -g trx2junit
+        trx2junit TestResults/*.trx
+        # rename to .junit.xml so it can be picked up by codecov
+        ls TestResults/*.xml | xargs -I {} cp {} {}.junit.xml
 
     # fails silently if CODECOV_TOKEN was not supplied
     - uses: codecov/codecov-action@v5
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - uses: codecov/test-results-action@v1
+      with:
+        files: TestResults/*.xml
         token: ${{ secrets.CODECOV_TOKEN }}
 
     - id: pack
@@ -127,5 +135,6 @@ jobs:
       with:
         name: TestResults
         path: |
-          **/TestResults/*.trx
-          **/TestResults/*/coverage.cobertura.xml
+          TestResults/*.trx
+          TestResults/*.xml
+          TestResults/*/coverage.cobertura.xml
