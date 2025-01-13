@@ -63,6 +63,7 @@ jobs:
     - id: test
       name: Test
       run: |
+        mkdir TestResults
         dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
         dotnet tool install -g trx2junit
         trx2junit TestResults/*.trx
