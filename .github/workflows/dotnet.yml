@@ -78,7 +78,7 @@ jobs:
       if: ${{ inputs.TESTPLATFORM }}
       run: |
         mkdir TestResults
-        dotnet test --no-build -- --report-trx --coverage --coverage-output-format cobertura --results-directory $(realpath TestResults)
+        dotnet test --no-build -p:TestingPlatformCaptureOutput=false -- --output Detailed --report-trx --coverage --coverage-output-format cobertura --results-directory $(realpath TestResults)
         dotnet tool install -g trx2junit
         trx2junit TestResults/*.trx
         # rename to .junit.xml so it can be picked up by codecov
