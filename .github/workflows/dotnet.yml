@@ -11,6 +11,10 @@ on:
         required: false
         type: boolean
         default: true
+      TESTPLATFORM:
+        required: false
+        type: boolean
+        default: false
     secrets:
       NUGET_KEY:
         required: true
@@ -62,9 +66,21 @@ jobs:
 
     - id: test
       name: Test
+      if: ${{ ! inputs.TESTPLATFORM }}
       run: |
         mkdir TestResults
         dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+        dotnet tool install -g trx2junit
+        trx2junit TestResults/*.trx
+        # rename to .junit.xml so it can be picked up by codecov
+        ls TestResults/*.xml | xargs -I {} cp {} {}.junit.xml
+
+    - id: test
+      name: Test
+      if: ${{ inputs.TESTPLATFORM }}
+      run: |
+        mkdir TestResults
+        dotnet test --no-build -- --report-trx --coverage --results-directory $(realpath TestResults)
         dotnet tool install -g trx2junit
         trx2junit TestResults/*.trx
         # rename to .junit.xml so it can be picked up by codecov
