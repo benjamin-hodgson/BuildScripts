@@ -64,8 +64,7 @@ jobs:
       name: Build
       run: dotnet build --no-restore
 
-    - id: test
-      name: Test
+    - name: Test
       if: ${{ ! inputs.TESTPLATFORM }}
       run: |
         mkdir TestResults
@@ -153,4 +152,4 @@ jobs:
         path: |
           TestResults/*.trx
           TestResults/*.xml
-          TestResults/*/coverage.cobertura.xml
+          TestResults/*/*.coverage
