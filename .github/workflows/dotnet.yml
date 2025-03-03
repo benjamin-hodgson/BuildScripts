@@ -84,13 +84,14 @@ jobs:
         # rename to .junit.xml so it can be picked up by codecov
         ls TestResults/*.xml | xargs -I {} cp {} {}.junit.xml
 
-    # fails silently if CODECOV_TOKEN was not supplied
     - uses: codecov/codecov-action@v5
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+        use_oidc: true
 
     - uses: codecov/test-results-action@v1
       with:
+        # fails silently if CODECOV_TOKEN was not supplied
+        # waiting for https://github.com/codecov/test-results-action/pull/101
         token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Pack
