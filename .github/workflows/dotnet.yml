@@ -46,7 +46,7 @@ jobs:
         # prerelease annotation). When we're on an actual tag,
         # 'git describe' simply outputs the tag name, so the second
         # regex will not match (and sed will echo the input unchanged)
-        version=$(git describe | sed s/^v// | sed -r 's/(.*)-/\1./')
+        version=$(git describe | sed s/^v// | sed -r 's/(.*-.*)-/\1./')
 
         echo Version $version >> $GITHUB_STEP_SUMMARY
         echo -p:Configuration=Release -p:Version=$version -p:ContinuousIntegrationBuild=true | tee Directory.Build.rsp
