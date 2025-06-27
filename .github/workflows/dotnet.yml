@@ -90,9 +90,7 @@ jobs:
 
     - uses: codecov/test-results-action@v1
       with:
-        # fails silently if CODECOV_TOKEN was not supplied
-        # waiting for https://github.com/codecov/test-results-action/pull/101
-        token: ${{ secrets.CODECOV_TOKEN }}
+        use_oidc: true
 
     - name: Pack
       run: dotnet pack --no-build
