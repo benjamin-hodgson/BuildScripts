@@ -11,15 +11,9 @@ on:
         required: false
         type: boolean
         default: true
-      TESTPLATFORM:
-        required: false
-        type: boolean
-        default: true
     secrets:
       NUGET_KEY:
         required: true
-      CODECOV_TOKEN:
-        required: false
 
 jobs:
   build:
