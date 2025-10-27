@@ -114,18 +114,18 @@ jobs:
         folder: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
         target-folder: ${{ github.ref_name }}
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       if: always()
       with:
         name: packages
         path: artifacts/package/release
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       with:
         name: ${{ inputs.DOCS_FOLDER }}
         path: artifacts/bin/${{ inputs.DOCS_FOLDER }}/release/_site
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       if: always()
       with:
         name: TestResults
