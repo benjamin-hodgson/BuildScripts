@@ -11,9 +11,14 @@ on:
         required: false
         type: boolean
         default: true
+      USE_OIDC:
+        required: false
+        type: boolean
+        default: false
+
     secrets:
       NUGET_KEY:
-        required: true
+        required: false
 
 jobs:
   build:
@@ -92,11 +97,18 @@ jobs:
         done
         popd
 
+    - id: nuget_login
+      name: NuGet OIDC Login
+      if: ${{ github.ref_type == 'tag' && inputs.USE_OIDC }}
+      uses: NuGet/login@v1
+      with:
+        user: benjamin.hodgson
+
     - id: push
       name: Push nuget packages
       if: ${{ github.ref_type == 'tag' }}
       run: |
-        dotnet nuget push 'artifacts/package/release/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }}
+        dotnet nuget push 'artifacts/package/release/*' --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY || steps.nuget_login.outputs.NUGET_API_KEY }}
         dotnet nuget push 'artifacts/package/release/*' --source https://nuget.pkg.github.com/benjamin-hodgson/index.json -k ${{ github.token }}
 
     - name: Create Github Release
