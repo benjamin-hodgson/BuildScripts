@@ -3,8 +3,10 @@
     <PropertyGroup>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
 
         <SignAssembly Condition="'$(SignAssembly)' == ''">true</SignAssembly>
 
