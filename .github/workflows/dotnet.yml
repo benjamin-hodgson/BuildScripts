@@ -11,6 +11,10 @@ on:
         required: false
         type: boolean
         default: true
+      USE_OIDC:  # ignored - back compat only
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   build:
