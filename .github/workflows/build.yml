@@ -23,4 +23,3 @@ jobs:
     uses: ./.github/workflows/dotnet.yml
     with:
       DOCS_FOLDER: ''
-      USE_OIDC: true
