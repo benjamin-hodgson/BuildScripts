@@ -57,7 +57,6 @@ jobs:
 
     - name: Test
       run: |
-        mkdir TestResults
         dotnet test --no-build -p:TestingPlatformCaptureOutput=false -- --output Detailed --report-trx --coverage --coverage-output-format cobertura --coverage-output cobertura.xml --results-directory TestResults
         dotnet tool install -g trx2junit
         trx2junit TestResults/*.trx
