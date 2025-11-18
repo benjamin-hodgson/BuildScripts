@@ -57,7 +57,7 @@ jobs:
 
     - name: Test
       run: |
-        dotnet test --no-build --output Detailed --report-trx --coverage --coverage-output-format cobertura --coverage-output cobertura.xml --results-directory TestResults
+        dotnet test --no-build --configuration Release --output Detailed --report-trx --coverage --coverage-output-format cobertura --coverage-output cobertura.xml --results-directory TestResults
         dotnet tool install -g trx2junit
         trx2junit TestResults/*.trx
         # rename to .junit.xml so it can be picked up by codecov
